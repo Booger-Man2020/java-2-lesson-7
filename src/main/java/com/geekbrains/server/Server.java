@@ -52,9 +52,12 @@ public class Server {
 
     public synchronized void broadcastMessage(String message) {
         for(ClientHandler handler: connectedUsers) {
-            handler.sendMessage(message);
+
+                handler.sendMessage(message);
+
+            }
         }
-    }
+
 
     public synchronized void addConnectedUser(ClientHandler handler) {
         connectedUsers.add(handler);
@@ -64,4 +67,13 @@ public class Server {
         connectedUsers.remove(handler);
     }
 
+
+    public synchronized void privateMessage(String username, String message) {
+        for(ClientHandler handler: connectedUsers) {
+            if(handler.getNickName().equals(username)){
+                handler.sendMessage( username + ": " + message);
+            }
+
+        }
+    }
 }

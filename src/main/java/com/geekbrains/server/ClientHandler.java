@@ -11,9 +11,9 @@ public class ClientHandler {
     private final DataInputStream inputStream;
     private final DataOutputStream outputStream;
 
-    private String nickName;
+    private static String nickName;
 
-    public String getNickName() {
+    public static String getNickName() {
         return nickName;
     }
 
@@ -28,6 +28,8 @@ public class ClientHandler {
                 public void run() {
                     try {
                         authentication();
+
+
                         readMessages();
                     } catch (IOException exception) {
                         exception.printStackTrace();
@@ -49,7 +51,7 @@ public class ClientHandler {
                 String nickName = server.getAuthService().getNickNameByLoginAndPassword(authInfo[1], authInfo[2]);
                 if (nickName != null) {
                     if (!server.isNickNameBusy(nickName)) {
-                        sendMessage("/authok " + nickName);
+                        sendMessage("/auth ok " + nickName);
                         this.nickName = nickName;
                         server.broadcastMessage(nickName + " зашел в чат");
                         server.addConnectedUser(this);
@@ -67,20 +69,27 @@ public class ClientHandler {
     private void readMessages() throws IOException {
         while (true) {
             String messageInChat = inputStream.readUTF();
-            System.out.println("от " + nickName + ": " + messageInChat);
-            if(messageInChat.equals(ServerCommandConstants.SHUTDOWN)) {
+            if (messageInChat.startsWith("/w")) {
+                String[] w = messageInChat.split(" ", 3);
+                String nick = w[1];
+
+                if (this.getNickName().equals(nick)) {
+                    outputStream.writeUTF(w[0] + w[1] + w[2]);
+                }
+            } else System.out.println(messageInChat);
+            if (messageInChat.equals(ServerCommandConstants.SHUTDOWN)) {
                 return;
             }
-
             server.broadcastMessage(nickName + ": " + messageInChat);
         }
     }
 
+
     public void sendMessage(String message) {
         try {
             outputStream.writeUTF(message);
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -95,4 +104,10 @@ public class ClientHandler {
             exception.printStackTrace();
         }
     }
+
+//    private void toUserMessage(String mes){
+//        for(ClientHandler handler: connectedUsers) {
+//            if (handler.getNickName().equals(nickName)) {
+//    }
+
 }

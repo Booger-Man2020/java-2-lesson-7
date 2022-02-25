@@ -1,6 +1,7 @@
 package com.geekbrains.client;
 
 import com.geekbrains.CommonConstants;
+import com.geekbrains.server.ClientHandler;
 import com.geekbrains.server.ServerCommandConstants;
 
 import java.io.DataInputStream;
@@ -32,6 +33,11 @@ public class Client {
                 try {
                     while (true) {
                         String messageFromServer = inputStream.readUTF();
+                        if (messageFromServer.startsWith("/w") && messageFromServer.equals(ClientHandler.getNickName())) {
+
+                            System.out.println(messageFromServer);
+
+                        }else
                         System.out.println(messageFromServer);
                     }
                 } catch (IOException exception) {
@@ -46,7 +52,6 @@ public class Client {
                 try {
                     while (true) {
                         String text = scanner.nextLine();
-
                         if(text.equals(ServerCommandConstants.SHUTDOWN)) {
                             sendMessage(text);
                             closeConnection();
